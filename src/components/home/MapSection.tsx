@@ -1,100 +1,111 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import Link from "next/link"
-import { MapPin, ArrowRight } from "lucide-react"
+import { MapPin } from "lucide-react"
 import { DEPARTMENTS } from "@/config/constants"
 
-// Chargement dynamique avec ssr:false — obligatoire pour Leaflet
-const MapClient = dynamic(() => import("./MapClient"), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-full bg-gray-light animate-pulse flex items-center
-                    justify-center">
-      <div className="text-gray-medium text-sm">Chargement de la carte…</div>
-    </div>
-  ),
-})
+// Chargement dynamique obligatoire (Leaflet = client only)
+const LeafletMap = dynamic(
+  () => import("./LeafletMap"),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="w-full h-[450px] bg-gray-light rounded-2xl
+                   flex items-center justify-center"
+        aria-label="Chargement de la carte"
+      >
+        <div className="text-center text-gray-medium">
+          <MapPin className="w-8 h-8 mx-auto mb-2 animate-bounce" />
+          <p className="text-sm">Chargement de la carte...</p>
+        </div>
+      </div>
+    ),
+  }
+)
 
 export default function MapSection() {
   return (
     <section
-      className="py-20 bg-gray-light"
-      aria-labelledby="map-heading"
+      className="bg-gray-light py-20"
+      aria-labelledby="map-title"
     >
       <div className="max-w-7xl mx-auto px-4">
 
-        {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 text-accent font-semibold
-                          text-sm uppercase tracking-widest mb-4">
-            <span className="w-8 h-px bg-accent" />
-            Zones d&apos;intervention
-            <span className="w-8 h-px bg-accent" />
+          <div className="inline-flex items-center gap-2 bg-accent/10
+                          text-accent font-semibold text-sm px-4 py-1.5
+                          rounded-full mb-4">
+            <MapPin className="w-4 h-4" />
+            Zone d&apos;intervention
           </div>
           <h2
-            id="map-heading"
-            className="text-3xl sm:text-4xl font-black text-primary mb-4"
+            id="map-title"
+            className="text-3xl lg:text-4xl font-black text-primary mb-4"
           >
-            Présents dans toute{" "}
-            <span className="text-accent">l&apos;Île-de-France</span>
+            Groupe CanalNet intervient dans{" "}
+            <span className="text-accent">
+              toute l&apos;Île-de-France
+            </span>
           </h2>
-          <p className="text-gray-medium max-w-2xl mx-auto">
-            Nos équipes couvrent les 8 départements franciliens.
-            Cliquez sur un département pour voir nos zones d&apos;intervention.
+          <p className="text-gray-medium max-w-xl mx-auto">
+            {DEPARTMENTS.length} départements couverts,
+            80+ communes desservies.
+            Un seul numéro pour toute la région.
           </p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8 items-start">
 
           {/* Carte */}
-          <div className="lg:col-span-2 rounded-2xl overflow-hidden shadow-card-hover
-                          border border-gray-100" style={{ height: "500px" }}>
-            <MapClient />
+          <div className="lg:col-span-2">
+            <div className="rounded-2xl overflow-hidden shadow-card-hover
+                            border border-white">
+              <LeafletMap />
+            </div>
           </div>
 
           {/* Liste départements */}
           <div className="space-y-3">
-            <h3 className="text-base font-bold text-primary mb-4 flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-accent" />
-              8 départements couverts
+            <h3 className="font-bold text-primary text-lg mb-5">
+              Nos départements
             </h3>
             {DEPARTMENTS.map((dept) => (
-              <Link
+              <a
                 key={dept.code}
                 href={`/${dept.slug}`}
-                className="flex items-center justify-between p-4 bg-white rounded-xl
-                           border border-gray-100 hover:border-accent/40
-                           hover:shadow-accent transition-all group"
+                className="flex items-center justify-between p-4
+                           bg-white rounded-xl border border-gray-100
+                           hover:border-accent/30 hover:shadow-card
+                           transition-all group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary flex items-center
-                                  justify-center flex-shrink-0 text-white font-bold text-sm
-                                  group-hover:bg-accent transition-colors">
-                    {dept.code}
+                  <div
+                    className="w-10 h-10 bg-accent/10 rounded-lg
+                               flex items-center justify-center
+                               group-hover:bg-accent/20 transition-colors"
+                  >
+                    <span className="text-accent font-black text-sm">
+                      {dept.code}
+                    </span>
                   </div>
                   <div>
-                    <div className="font-semibold text-primary text-sm">
+                    <div className="font-bold text-primary text-sm">
                       {dept.name}
                     </div>
-                    <div className="text-xs text-gray-medium">
-                      Dégorgement urgence
+                    <div className="text-gray-medium text-xs">
+                      Intervention 24h/7j
                     </div>
                   </div>
                 </div>
-                <ArrowRight className="w-4 h-4 text-gray-medium group-hover:text-accent
-                                       group-hover:translate-x-0.5 transition-all" />
-              </Link>
+                <MapPin
+                  className="w-4 h-4 text-accent
+                             group-hover:scale-110 transition-transform"
+                />
+              </a>
             ))}
-            <Link
-              href="/degorgement-ile-de-france"
-              className="flex items-center justify-center gap-2 p-4 bg-accent text-white
-                         font-bold rounded-xl hover:bg-accent/90 transition-colors text-sm"
-            >
-              Voir toutes les villes IDF
-              <ArrowRight className="w-4 h-4" />
-            </Link>
           </div>
+
         </div>
       </div>
     </section>
